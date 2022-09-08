@@ -1,0 +1,4 @@
+sf-vm02:
+	no use ansible for roles : mail and filebeat
+sf-vm03:
+	no use ansible for roles : ELK 

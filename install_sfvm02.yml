@@ -1,0 +1,63 @@
+---
+
+- hosts: all
+  become: yes
+  tasks:
+  -  name: Install PHP on Ubuntu
+     apt:
+        name=php
+        state=latest
+  -  name: Install php apache mod on Ubuntu
+     apt:
+        name=libapache2-mod-php
+        state=latest
+  -  name: Install bind on Ubuntu
+     apt:
+        name=bind9
+        state=latest
+  -  name: Install nginx on Ubuntu
+     apt:
+        name=nginx
+        state=latest
+     notify:
+        nginx systemd
+  -  name: Install apache on Ubuntu
+     apt:
+        name=apache2
+        state=latest
+     notify:
+        apache2 systemd
+  -  name: apache2 listen on port 8081
+     lineinfile: dest=/etc/apache2/ports.conf
+        regexp="^Listen 80"
+        line="Listen 8081"
+        state=present
+     notify:
+        restart apache2
+  -  name: apache2 virtualhost on port 8081
+     lineinfile: dest=/etc/apache2/sites-available/000-default.conf
+        regexp="^<VirtualHost \*:80>" 
+        line="<VirtualHost *:8081>" 
+        state=present
+     notify:
+        restart apache2
+  handlers:
+  - name: nginx systemd
+    systemd:
+     name: nginx
+     enabled: yes
+     state: started
+  - name: apache2 systemd
+    systemd:
+     name: apache2
+     enabled: yes
+     state: started
+  - name: bind9 systemd
+    systemd:
+     name: bind9
+     enabled: yes
+     state: started
+  - name: restart apache2
+    service:
+     name=apache2 
+     state=restarted

@@ -1,0 +1,33 @@
+---
+
+- hosts: all
+  become: yes
+  tasks:
+  -  name: Install zabbix agent on Ubuntu
+     apt:
+        name=zabbix-agent
+        state=latest
+     when:
+        ansible_os_family == "Debian"
+     notify:
+        zabbix-agent systemd
+  -  name: change zabbix config hostname
+     lineinfile:
+       path: /etc/zabbix/zabbix_agentd.conf
+       insertafter:
+       line: Hostname={{ ansible_hostname }}
+       regexp: ^Hostname
+       state: present
+  -  name: change zabbix config server
+     lineinfile:
+       path: /etc/zabbix/zabbix_agentd.conf
+       insertafter:
+       line: Server=10.0.0.1
+       regexp: ^Server= 
+       state: present
+  handlers:
+  - name: zabbix-agent systemd
+    systemd:
+     name: zabbix-agent
+     enabled: yes
+     state: started

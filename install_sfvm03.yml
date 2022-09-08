@@ -1,0 +1,17 @@
+---
+
+- hosts: all
+  become: yes
+  tasks:
+  - name: Install postgresql on Ubuntu
+    apt:
+        name=postgresql
+        state=latest
+    notify:
+        postgresql systemd
+  handlers:
+  - name: postgresql systemd
+    systemd:
+     name: postgresql
+     enabled: yes
+     state: started
